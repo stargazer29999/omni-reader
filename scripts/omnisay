@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# OmniReader CLI wrapper with symlink resolution
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+PYTHON="$PROJECT_DIR/.venv/bin/python"
+
+if [ ! -f "$PYTHON" ]; then
+    echo "[omnisay] Virtual environment not found at $PYTHON. Please run setup_env.sh first." >&2
+    exit 1
+fi
+
+PYTHONPATH="$PROJECT_DIR:$PYTHONPATH" exec "$PYTHON" -m omni_reader.cli "$@"
